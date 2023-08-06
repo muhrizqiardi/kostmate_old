@@ -31,15 +31,36 @@ func (mdbq *mockDBQuery) InsertNewUser(email string, full_name string, role stri
 }
 
 func (mdbq *mockDBQuery) GetOneUserByID(id uuid.UUID) (entities.UserEntity, error) {
-	return entities.UserEntity{}, nil
+	return entities.UserEntity{
+		Id:        id,
+		Email:     faker.Email(),
+		FullName:  faker.FirstName() + " " + faker.LastName(),
+		Role:      "USER",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}, nil
 }
 
 func (mdbq *mockDBQuery) UpdateOneUserByID(id uuid.UUID, email string, full_name string, role string) (entities.UserEntity, error) {
-	return entities.UserEntity{}, nil
+	return entities.UserEntity{
+		Id:        id,
+		Email:     faker.Email(),
+		FullName:  faker.FirstName() + " " + faker.LastName(),
+		Role:      "USER",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}, nil
 }
 
 func (mdbq *mockDBQuery) DeleteOneUserByID(id uuid.UUID) (entities.UserEntity, error) {
-	return entities.UserEntity{}, nil
+	return entities.UserEntity{
+		Id:        id,
+		Email:     faker.Email(),
+		FullName:  faker.FirstName() + " " + faker.LastName(),
+		Role:      "USER",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}, nil
 }
 
 func TestService_CreateNewUser(t *testing.T) {
@@ -60,6 +81,79 @@ func TestService_CreateNewUser(t *testing.T) {
 			got.FullName != mockPayload_userRole.FullName ||
 			got.Role != mockPayload_userRole.Role {
 			t.Errorf("Expected correct email, fullname, or role, got incorrect")
+		}
+	})
+}
+
+func TestService_GetOneUserByID(t *testing.T) {
+	t.Run("should get one user by ID", func(t *testing.T) {
+		mockdbq := newMockDBQuery()
+		s := NewService(mockdbq)
+		mockUserId, _ := uuid.NewUUID()
+		mockUser := entities.UserEntity{
+			Id:        mockUserId,
+			Email:     faker.Email(),
+			FullName:  faker.FirstName() + " " + faker.LastName(),
+			Role:      "USER",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		got, gotErr := s.GetOneUserByID(mockUserId)
+		if gotErr != nil {
+			t.Errorf("Expected no error, got error")
+		}
+		if got.Id != mockUserId {
+			t.Errorf("Expected %s, got %s", mockUser.Id, got.Id)
+		}
+	})
+}
+
+func TestService_UpdateOneUserByID(t *testing.T) {
+	t.Run("should update one user by ID", func(t *testing.T) {
+		mockdbq := newMockDBQuery()
+		s := NewService(mockdbq)
+		mockUserId, _ := uuid.NewUUID()
+		mockUser := entities.UserEntity{
+			Id:        mockUserId,
+			Email:     faker.Email(),
+			FullName:  faker.FirstName() + " " + faker.LastName(),
+			Role:      "USER",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		got, gotErr := s.UpdateOneUserByID(mockUserId, dtos.UpdateOneUserByIDDTO{
+			Email:    mockUser.Email,
+			FullName: mockUser.FullName,
+			Role:     mockUser.Role,
+		})
+		if gotErr != nil {
+			t.Errorf("Expected no error, got error")
+		}
+		if got.Id != mockUserId {
+			t.Errorf("Expected %s, got %s", mockUser.Id, got.Id)
+		}
+	})
+}
+
+func TestService_DeleteOneUserByID(t *testing.T) {
+	t.Run("should get one user by ID", func(t *testing.T) {
+		mockdbq := newMockDBQuery()
+		s := NewService(mockdbq)
+		mockUserId, _ := uuid.NewUUID()
+		mockUser := entities.UserEntity{
+			Id:        mockUserId,
+			Email:     faker.Email(),
+			FullName:  faker.FirstName() + " " + faker.LastName(),
+			Role:      "USER",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		got, gotErr := s.GetOneUserByID(mockUserId)
+		if gotErr != nil {
+			t.Errorf("Expected no error, got error")
+		}
+		if got.Id != mockUserId {
+			t.Errorf("Expected %s, got %s", mockUser.Id, got.Id)
 		}
 	})
 }
