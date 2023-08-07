@@ -1,4 +1,4 @@
-package db_query
+package dbquery
 
 import (
 	"errors"

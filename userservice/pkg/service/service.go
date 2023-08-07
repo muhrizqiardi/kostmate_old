@@ -3,12 +3,12 @@ package service
 import (
 	"github.com/google/uuid"
 	"github.com/muhrizqiardi/kostmate/common/pkg/entities"
-	"github.com/muhrizqiardi/kostmate/userservice/pkg/db_query"
+	"github.com/muhrizqiardi/kostmate/userservice/pkg/dbquery"
 	"github.com/muhrizqiardi/kostmate/userservice/pkg/dtos"
 )
 
 type Service struct {
-	dbq db_query.DBQuerier
+	dbq dbquery.DBQuerier
 }
 
 type Servicer interface {
@@ -18,7 +18,7 @@ type Servicer interface {
 	DeleteOneUserByID(id uuid.UUID) (entities.UserEntity, error)
 }
 
-func NewService(dbq db_query.DBQuerier) *Service {
+func NewService(dbq dbquery.DBQuerier) *Service {
 	return &Service{dbq}
 }
 
