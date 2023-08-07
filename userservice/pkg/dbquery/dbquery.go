@@ -8,6 +8,29 @@ import (
 	"github.com/muhrizqiardi/kostmate/common/pkg/entities"
 )
 
+const (
+	QueryInsertNewUser = `
+		insert into public.users (email, full_name, role)
+			values ($1, $2, $3) 
+			returning id, email, full_name, role, created_at, updated_at;
+	`
+	QueryGetOneUserByID = `
+		select id, email, full_name, role, created_at, updated_at
+			where id = $1;
+	`
+	QueryUpdateOneUserByID = `
+		update public.users
+			set email = $2, full_name = $3, role = $4
+			where id = $1
+			returning, email, full_name, role, created_at, updated_at;
+	`
+	QueryDeleteOneUserByID = `
+		delete from public.users
+			where id = $1
+			returning id, email, full_name, role, created_at, updated_at;
+	`
+)
+
 type DBQuery struct {
 	db *sqlx.DB
 }
@@ -24,12 +47,7 @@ func NewDBQuery(db *sqlx.DB) *DBQuery {
 }
 
 func (d *DBQuery) InsertNewUser(email string, full_name string, role string) (entities.UserEntity, error) {
-	q := `
-		insert into public.users (email, full_name, role)
-			values ($1, $2, $3) 
-			returning id, email, full_name, role, created_at, updated_at;
-	`
-	stmt, _ := d.db.Preparex(q)
+	stmt, _ := d.db.Preparex(QueryInsertNewUser)
 
 	switch role {
 	case "USER":
@@ -48,11 +66,7 @@ func (d *DBQuery) InsertNewUser(email string, full_name string, role string) (en
 }
 
 func (d *DBQuery) GetOneUserById(id uuid.UUID) (entities.UserEntity, error) {
-	q := `
-		select id, email, full_name, role, created_at, updated_at
-			where id = $1;
-	`
-	stmt, _ := d.db.Preparex(q)
+	stmt, _ := d.db.Preparex(QueryGetOneUserByID)
 	var user entities.UserEntity
 	if err := stmt.Get(&user, id); err != nil {
 		return entities.UserEntity{}, errors.New("Failed to get user")
@@ -62,13 +76,7 @@ func (d *DBQuery) GetOneUserById(id uuid.UUID) (entities.UserEntity, error) {
 }
 
 func (d *DBQuery) UpdateOneUserById(id uuid.UUID, email string, full_name string, role string) (entities.UserEntity, error) {
-	q := `
-		update public.users
-			set email = $2, full_name = $3, role = $4
-			where id = $1
-			returning, email, full_name, role, created_at, updated_at;
-	`
-	stmt, _ := d.db.Preparex(q)
+	stmt, _ := d.db.Preparex(QueryUpdateOneUserByID)
 
 	switch role {
 	case "USER":
@@ -86,12 +94,7 @@ func (d *DBQuery) UpdateOneUserById(id uuid.UUID, email string, full_name string
 }
 
 func (d *DBQuery) Delete(id uuid.UUID) (entities.UserEntity, error) {
-	q := `
-		delete from public.users
-			where id
-			returning, email, full_name, role, created_at, updated_at;
-	`
-	stmt, _ := d.db.Preparex(q)
+	stmt, _ := d.db.Preparex(QueryDeleteOneUserByID)
 
 	var deletedUser entities.UserEntity
 	if err := stmt.Get(&deletedUser, id); err != nil {
